@@ -47,8 +47,20 @@ object AvroSerialisable {
         s
       }
     }
-    override def writableValue(t: Short): Any = t
+    override def writableValue(t: Short): Any = t.toInt
     override def read(x: Any): Short = x.asInstanceOf[Int].toShort
+  }
+
+  implicit object ByteSerialisable extends AvroSerialisable[Byte] {
+    override val schema = new AvroSchema {
+      override def apply() = {
+        val s = Schema.create(Schema.Type.INT)
+        s.addProp("thrift", "byte")
+        s
+      }
+    }
+    override def writableValue(t: Byte): Any = t.toInt
+    override def read(x: Any): Byte = x.asInstanceOf[Int].toByte
   }
 
   def OptionAvroSerialisable[T](w: AvroSerialisable[T]) = new AvroSerialisable[Option[T]] {

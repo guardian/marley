@@ -23,4 +23,5 @@ struct ExampleStruct {
   9: optional i32 optInt;
   10: optional i16 optShort;
   11: optional i64 optLong;
+  12: optional byte optByte;
 }

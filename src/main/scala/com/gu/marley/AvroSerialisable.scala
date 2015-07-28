@@ -1,4 +1,4 @@
-package com.gu.mcduck
+package com.gu.marley
 
 import com.twitter.scrooge.{ThriftEnum, ThriftStruct}
 import org.apache.avro.Schema
@@ -7,7 +7,7 @@ import org.apache.avro.Schema.Type
 import collection.convert.decorateAll._
 
 import scala.language.experimental.macros
-import scala.reflect.macros.blackbox.Context
+import scala.reflect.macros.blackbox
 
 trait AvroSerialisable[T] {
   val schema: AvroSchema
@@ -65,7 +65,7 @@ object AvroSerialisable {
 
   def OptionAvroSerialisable[T](w: AvroSerialisable[T]) = new AvroSerialisable[Option[T]] {
     override val schema = AvroOptionSchema(w.schema)
-    override def writableValue(t: Option[T]): Any = t.map(w.writableValue(_)).getOrElse(null)
+    override def writableValue(t: Option[T]): Any = t.map(w.writableValue).orNull
     override def read(x: Any): Option[T] = Option(x).map(w.read)
   }
 
@@ -77,15 +77,27 @@ object AvroSerialisable {
 
   def SetAvroSerialisable[T](w: AvroSerialisable[T]) = new AvroSerialisable[scala.collection.Set[T]] {
     override val schema = AvroSetSchema(w.schema)
-    override def writableValue(t: scala.collection.Set[T]): Any = t.map(w.writableValue(_)).asJava
+    override def writableValue(t: scala.collection.Set[T]): Any = t.map(w.writableValue).asJava
     override def read(x: Any): collection.Set[T] = x.asInstanceOf[java.util.List[Any]].asScala.map(w.read).toSet
   }
+
+  def MapAvroSerialisable[V](wv: AvroSerialisable[V]) =
+    new AvroSerialisable[collection.Map[String,V]] {
+      override val schema = AvroMapSchema(wv.schema)
+      override def writableValue(t: collection.Map[String, V]): Any = t.map {
+        case (k,v) => (StringSerialisable.writableValue(k), wv.writableValue(v))
+      }.asJava
+      override def read(x: Any): collection.Map[String,V] =
+        x.asInstanceOf[java.util.Map[Any,Any]].asScala.map {
+          case (k, v) => (StringSerialisable.read(k), wv.read(v))
+        }
+    }
 
   def struct[T <: ThriftStruct]: AvroSerialisable[T] = macro AvroSerialisable.structMacro[T]
 
   def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisable.enumMacro[T]
 
-  def enumMacro[T: c.WeakTypeTag](c: Context): c.Expr[AvroSerialisable[T]] = {
+  def enumMacro[T: c.WeakTypeTag](c: blackbox.Context): c.Expr[AvroSerialisable[T]] = {
     import c.universe._
 
     val typ = weakTypeOf[T]
@@ -103,24 +115,24 @@ object AvroSerialisable {
     val pkg = typ.typeSymbol.owner.fullName
 
     val tree = q"""
-      new com.gu.mcduck.AvroSerialisable[$typ] {
+      new com.gu.marley.AvroSerialisable[$typ] {
         val schema = {
-          com.gu.mcduck.AvroEnumSchema(
+          com.gu.marley.AvroEnumSchema(
             ${typ.typeSymbol.name.decodedName.toString},
             $pkg,
-            $listMethod.map(_.name).map(com.gu.mcduck.enumsymbols.SnakesOnACamel.toSnake)
+            $listMethod.map(_.name).map(com.gu.marley.enumsymbols.SnakesOnACamel.toSnake)
           )
         }
         val schemaInstance = schema.apply()
         val valueMap = Map($listMethod.map(x => x ->
           org.apache.avro.generic.GenericData.get.createEnum(
-            com.gu.mcduck.enumsymbols.SnakesOnACamel.toSnake(x.name), schemaInstance)
+            com.gu.marley.enumsymbols.SnakesOnACamel.toSnake(x.name), schemaInstance)
         ): _*)
 
         def writableValue(t: $typ) = valueMap(t)
 
         val readMap = Map($listMethod.map(x =>
-          com.gu.mcduck.enumsymbols.SnakesOnACamel.toSnake(x.name) -> x
+          com.gu.marley.enumsymbols.SnakesOnACamel.toSnake(x.name) -> x
         ): _*)
 
         def read(x: Any) = readMap(x.toString)
@@ -130,7 +142,7 @@ object AvroSerialisable {
     c.Expr[AvroSerialisable[T]](tree)
   }
 
-  def structMacro[T: c.WeakTypeTag](c: Context): c.Expr[AvroSerialisable[T]] = {
+  def structMacro[T: c.WeakTypeTag](c: blackbox.Context): c.Expr[AvroSerialisable[T]] = {
     import c.universe._
 
     val typ = weakTypeOf[T]
@@ -156,14 +168,19 @@ object AvroSerialisable {
         val optionType = typeOf[Option[_]]
         val seqType = typeOf[Seq[_]]
         val setType = typeOf[collection.Set[_]]
+        val mapType = typeOf[collection.Map[_, _]]
+
+        val StringType = typeOf[String]
 
         def implicitFor(typ: c.universe.Type): c.Tree = typ match {
           case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, optionType) =>
-            q"com.gu.mcduck.AvroSerialisable.OptionAvroSerialisable(${implicitFor(arg)})"
+            q"com.gu.marley.AvroSerialisable.OptionAvroSerialisable(${implicitFor(arg)})"
           case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, seqType) =>
-            q"com.gu.mcduck.AvroSerialisable.SeqAvroSerialisable(${implicitFor(arg)})"
+            q"com.gu.marley.AvroSerialisable.SeqAvroSerialisable(${implicitFor(arg)})"
           case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, setType) =>
-            q"com.gu.mcduck.AvroSerialisable.SetAvroSerialisable(${implicitFor(arg)})"
+            q"com.gu.marley.AvroSerialisable.SetAvroSerialisable(${implicitFor(arg)})"
+          case TypeRef(_, _, StringType :: arg :: Nil) if subTypeOf(typ, mapType) =>
+            q"com.gu.marley.AvroSerialisable.MapAvroSerialisable(${implicitFor(arg)})"
           case _ => neededImplicit(typ)
         }
 
@@ -188,9 +205,9 @@ object AvroSerialisable {
     // I believe it's down to https://issues.scala-lang.org/browse/SI-6317
     val tree =
       q"""
-        new com.gu.mcduck.AvroSerialisable[$typ] {
+        new com.gu.marley.AvroSerialisable[$typ] {
           val schema = {
-            com.gu.mcduck.AvroRecordSchema(
+            com.gu.marley.AvroRecordSchema(
               ${typ.typeSymbol.name.decodedName.toString},
               $pkg,
               ..$fieldSchemas

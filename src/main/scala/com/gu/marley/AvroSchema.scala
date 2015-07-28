@@ -1,4 +1,4 @@
-package com.gu.mcduck
+package com.gu.marley
 
 import com.twitter.scrooge.ThriftEnum
 import org.apache.avro.Schema.Type
@@ -29,6 +29,11 @@ case class AvroSetSchema(innerSchema: AvroSchema) extends AvroSchema {
     schema
   }
 }
+
+case class AvroMapSchema(valueSchema: AvroSchema) extends AvroSchema {
+  override def apply() = Schema.createMap(valueSchema())
+}
+
 
 case class AvroRecordSchema(name: String, namespace: String, fields: (String, AvroSchema)*) extends AvroSchema {
   def apply() = fields.foldLeft(SchemaBuilder.record(name).namespace(namespace).fields) {

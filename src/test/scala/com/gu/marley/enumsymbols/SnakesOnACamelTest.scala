@@ -1,4 +1,4 @@
-package com.gu.mcduck.enumsymbols
+package com.gu.marley.enumsymbols
 
 import org.scalatest.{Matchers, FlatSpec}
 

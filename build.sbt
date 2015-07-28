@@ -1,4 +1,5 @@
-name := "mcduck"
+name := "marley"
+organization := "com.gu"
 
 scalaVersion := "2.11.7"
 

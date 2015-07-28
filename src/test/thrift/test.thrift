@@ -1,4 +1,4 @@
-namespace * com.gu.mcduck
+namespace * com.gu.marley
 
 
 enum ExampleEnum {
@@ -24,4 +24,5 @@ struct ExampleStruct {
   10: optional i16 optShort;
   11: optional i64 optLong;
   12: optional byte optByte;
+  13: optional map<string, i32> stringIntMap;
 }

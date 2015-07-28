@@ -1,4 +1,4 @@
-package com.gu.mcduck
+package com.gu.marley
 
 import java.io.File
 
@@ -32,7 +32,7 @@ object AvroFile {
     try {
       avroFile.append(structs)
     } finally {
-      avroFile.close
+      avroFile.close()
     }
   }
 

@@ -1,4 +1,4 @@
-package com.gu.mcduck.enumsymbols
+package com.gu.marley.enumsymbols
 
 import org.parboiled2._
 import org.parboiled2.CharPredicate._

@@ -1,8 +1,8 @@
 Marley
 ======
 
-Marley is a library for serialising [Scrooge]() generated classes representing [Thrift]() objects as [Avro]() with 
-minimal boilerplate.
+Marley is a library for serialising [Scrooge](https://twitter.github.io/scrooge/) generated classes representing 
+[Thrift](http://thrift.apache.org/) objects as [Avro](https://avro.apache.org/) with minimal boilerplate.
 
 Example Usage
 -------------

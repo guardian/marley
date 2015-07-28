@@ -8,10 +8,12 @@ Example Usage
 -------------
 
 ```scala
-import com.gu.mcduck._
+import com.gu.marley._
 
 implicit val enumSer = AvroSerialisable.enum[ExampleEnum]
 implicit val structSer = AvroSerialisable.struct[ExampleStruct]
 
 AvroFile.write(Seq(struct))(file)
+
+val readStructs: Iterable[ExampleStruct] = AvroFile.read[ExampleStruct](file)
 ```

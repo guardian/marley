@@ -4,8 +4,19 @@ Marley
 Marley is a library for serialising [Scrooge](https://twitter.github.io/scrooge/) generated classes representing 
 [Thrift](http://thrift.apache.org/) objects as [Avro](https://avro.apache.org/) with minimal boilerplate.
 
-Example Usage
--------------
+Installation
+------------
+
+```scala
+libraryDependencies ++= Seq(
+  "com.gu" %% "marley" % "0.1.0"
+)
+```
+
+Note that Marley is only published for Scala 2.11
+
+Usage
+-----
 
 ```scala
 import com.gu.marley._

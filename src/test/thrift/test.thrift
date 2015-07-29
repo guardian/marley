@@ -18,7 +18,7 @@ struct ExampleStruct {
   4: optional bool defaultBool = false;
   5: required double requiredDouble;
   6: optional list<string> optListString;
-  7: optional SubStruct subStruct;
+  7: required SubStruct subStruct;
   8: optional set<string> stringSet;
   9: optional i32 optInt;
   10: optional i16 optShort;

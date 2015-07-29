@@ -1,4 +1,4 @@
-Marley
+Marley [![Build Status](https://travis-ci.org/guardian/marley.svg?branch=master)](https://travis-ci.org/guardian/marley)
 ======
 
 Marley is a library for serialising [Scrooge](https://twitter.github.io/scrooge/) generated classes representing 

@@ -1,3 +1,7 @@
+// Scrooge relies on an ancient version of thrift that's not on maven central
+// Instead, force a slightly more recent version
+libraryDependencies += "org.apache.thrift" % "libthrift" % "0.6.1"
+
 addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "3.18.1")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.0")

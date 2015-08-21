@@ -37,6 +37,7 @@ case class AvroMapSchema(valueSchema: AvroSchema) extends AvroSchema {
 
 case class AvroRecordSchema(name: String, namespace: String, fields: (String, AvroSchema)*) extends AvroSchema {
   def apply() = fields.foldLeft(SchemaBuilder.record(name).namespace(namespace).fields) {
+    case (b, (k, v: AvroOptionSchema)) => b.name(k).`type`(v()).withDefault(null)
     case (b, (k, v)) => b.name(k).`type`(v()).noDefault
   }.endRecord
 }

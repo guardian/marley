@@ -9,6 +9,8 @@ import collection.convert.decorateAll._
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
+import macrocompat.bundle
+
 trait AvroSerialisable[T] {
   val schema: AvroSchema
   def writableValue(t: T): Any
@@ -93,13 +95,20 @@ object AvroSerialisable {
         }
     }
 
-  def struct[T <: ThriftStruct]: AvroSerialisable[T] = macro AvroSerialisable.structMacro[T]
+  def struct[T <: ThriftStruct]: AvroSerialisable[T] = macro AvroSerialisableMacro.structMacro[T]
 
-  def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisable.enumMacro[T]
+  def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
 
-  def enumMacro[T: c.WeakTypeTag](c: blackbox.Context): c.Expr[AvroSerialisable[T]] = {
-    import c.universe._
 
+
+
+}
+
+@bundle
+class AvroSerialisableMacro(val c: blackbox.Context) {
+  import c.universe._
+
+  def enumMacro[T: c.WeakTypeTag]: Tree = {
     val typ = weakTypeOf[T]
 
     def findCompanionOfThisOrParentWithMethod(method: String): Option[c.universe.Symbol] =
@@ -114,7 +123,7 @@ object AvroSerialisable {
 
     val pkg = typ.typeSymbol.owner.fullName
 
-    val tree = q"""
+    q"""
       new com.gu.marley.AvroSerialisable[$typ] {
         val schema = {
           com.gu.marley.AvroEnumSchema(
@@ -138,13 +147,9 @@ object AvroSerialisable {
         def read(x: Any) = readMap(x.toString)
       }
     """
-
-    c.Expr[AvroSerialisable[T]](tree)
   }
 
-  def structMacro[T: c.WeakTypeTag](c: blackbox.Context): c.Expr[AvroSerialisable[T]] = {
-    import c.universe._
-
+  def structMacro[T: c.WeakTypeTag]: Tree = {
     val typ = weakTypeOf[T]
 
     val apply = typ.companion.decls.find(_.name == TermName("apply")).getOrElse(
@@ -185,7 +190,7 @@ object AvroSerialisable {
         }
 
         (params.name.toTermName, sig, implicitFor(sig))
-    }
+      }
 
     val fieldSchemas = fields.map { case (fieldName, fieldType, implicitSerialisable) =>
       q"""${fieldName.toString} -> $implicitSerialisable.schema"""
@@ -203,30 +208,27 @@ object AvroSerialisable {
 
     // The _1, _2 nonsense for unpacking the Tuple is necessary here, otherwise it slays the compiler
     // I believe it's down to https://issues.scala-lang.org/browse/SI-6317
-    val tree =
-      q"""
-        new com.gu.marley.AvroSerialisable[$typ] {
-          val schema = {
-            com.gu.marley.AvroRecordSchema(
-              ${typ.typeSymbol.name.decodedName.toString},
-              $pkg,
-              ..$fieldSchemas
-            )
-          }
-          val schemaInstance = schema.apply()
-          def writableValue(t: $typ) = {
-            Seq(..$fieldValues).foldLeft(new org.apache.avro.generic.GenericRecordBuilder(schemaInstance)){(b, nv) =>
-              b.set(nv._1, nv._2)
-            }.build
-          }
-
-          def read(x: Any) = {
-            val record = x.asInstanceOf[org.apache.avro.generic.GenericRecord]
-            $apply(..$fieldReaders)
-          }
+    q"""
+      new com.gu.marley.AvroSerialisable[$typ] {
+        val schema = {
+          com.gu.marley.AvroRecordSchema(
+            ${typ.typeSymbol.name.decodedName.toString},
+            $pkg,
+            ..$fieldSchemas
+          )
         }
-        """
+        val schemaInstance = schema.apply()
+        def writableValue(t: $typ) = {
+          Seq(..$fieldValues).foldLeft(new org.apache.avro.generic.GenericRecordBuilder(schemaInstance)){(b, nv) =>
+            b.set(nv._1, nv._2)
+          }.build
+        }
 
-    c.Expr[AvroSerialisable[T]](tree)
+        def read(x: Any) = {
+          val record = x.asInstanceOf[org.apache.avro.generic.GenericRecord]
+          $apply(..$fieldReaders)
+        }
+      }
+      """
   }
 }

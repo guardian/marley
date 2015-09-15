@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
 	"org.apache.thrift" % "libthrift" % "0.9.2",
   "org.apache.avro" % "avro" % "1.7.7",
   "org.parboiled" %% "parboiled" % "2.1.0",
-  "org.typelevel" %% "macro-compat" % "1.0.1-SNAPSHOT",
+  "org.typelevel" %% "macro-compat" % "1.0.2",
   compilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full),
   "org.scalatest" %% "scalatest" % "2.2.5" % Test,
   "org.scalacheck" %% "scalacheck" % "1.12.4" % Test

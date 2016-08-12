@@ -1,15 +1,13 @@
 package com.gu.marley
-
-import com.twitter.scrooge.{ThriftEnum, ThriftStruct}
+import com.twitter.scrooge.{ThriftEnum, ThriftStruct, ThriftUnion}
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Type
 
 import collection.convert.decorateAll._
-
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
-
 import macrocompat.bundle
+
 
 trait AvroSerialisable[T] {
   val schema: AvroSchema
@@ -17,7 +15,7 @@ trait AvroSerialisable[T] {
   def read(x: Any): T
 }
 
-object AvroSerialisable {
+object AvroSerialisable extends LowPriorityImplicitSerialisable {
   def value[T](t: T)(implicit lw: AvroSerialisable[T]): Any = lw.writableValue(t)
   def read[T](x: Any)(implicit lw: AvroSerialisable[T]): T = lw.read(x)
   def schema[T](implicit lw: AvroSerialisable[T]): AvroSchema = lw.schema
@@ -95,15 +93,15 @@ object AvroSerialisable {
         }
     }
 
-  def struct[T <: ThriftStruct]: AvroSerialisable[T] = macro AvroSerialisableMacro.structMacro[T]
+  implicit def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
 
-  def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
-
-
-
+  implicit def union[T <: ThriftUnion]: AvroSerialisable[T] = macro AvroSerialisableMacro.unionMacro[T]
 
 }
 
+trait LowPriorityImplicitSerialisable {
+  implicit def struct[T <: ThriftStruct]: AvroSerialisable[T] = macro AvroSerialisableMacro.structMacro[T]
+}
 @bundle
 class AvroSerialisableMacro(val c: blackbox.Context) {
   import c.universe._
@@ -152,42 +150,14 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
   def structMacro[T: c.WeakTypeTag]: Tree = {
     val typ = weakTypeOf[T]
 
-    val apply = typ.companion.decls.find(_.name == TermName("apply")).getOrElse(
-      c.abort(c.enclosingPosition, s"Expected the companion object of $typ to have an 'apply' method")
+    val apply = typ.dealias.companion.decls.find(_.name == TermName("apply")).getOrElse(
+      c.abort(c.enclosingPosition, s"Expected the companion object of ${typ.dealias} to have an 'apply' method")
     )
 
     val fields = for {
       params <- apply.asMethod.paramLists.head
       sig = params.typeSignature
     } yield {
-        def neededImplicit(typ: c.universe.Type) = {
-          val neededImplicitType = appliedType(weakTypeOf[AvroSerialisable[_]].typeConstructor, typ)
-          val foundImplicit = c.inferImplicitValue(neededImplicitType)
-          if (foundImplicit.isEmpty) c.abort(c.enclosingPosition, s"No implicit found for $neededImplicitType")
-          foundImplicit
-        }
-
-        def subTypeOf(target: c.universe.Type, reference: c.universe.Type) =
-          target.typeConstructor <:< reference.typeConstructor
-
-        val optionType = typeOf[Option[_]]
-        val seqType = typeOf[Seq[_]]
-        val setType = typeOf[collection.Set[_]]
-        val mapType = typeOf[collection.Map[_, _]]
-
-        val StringType = typeOf[String]
-
-        def implicitFor(typ: c.universe.Type): c.Tree = typ match {
-          case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, optionType) =>
-            q"com.gu.marley.AvroSerialisable.OptionAvroSerialisable(${implicitFor(arg)})"
-          case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, seqType) =>
-            q"com.gu.marley.AvroSerialisable.SeqAvroSerialisable(${implicitFor(arg)})"
-          case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, setType) =>
-            q"com.gu.marley.AvroSerialisable.SetAvroSerialisable(${implicitFor(arg)})"
-          case TypeRef(_, _, StringType :: arg :: Nil) if subTypeOf(typ, mapType) =>
-            q"com.gu.marley.AvroSerialisable.MapAvroSerialisable(${implicitFor(arg)})"
-          case _ => neededImplicit(typ)
-        }
 
         (params.name.toTermName, sig, implicitFor(sig))
       }
@@ -231,4 +201,91 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
       }
       """
   }
+
+  def unionMacro[T: c.WeakTypeTag]: Tree = {
+    val typ = weakTypeOf[T].dealias
+    if (typ.typeSymbol.isAbstract) {
+      val subClasses = typ.typeSymbol.asClass.knownDirectSubclasses
+
+      val cases = subClasses map { cl =>
+        val typ = tq"${cl.asType}"
+        val pat = pq"""x : $typ"""
+        val grTyp = pq"""x : org.apache.avro.generic.GenericRecord"""
+        // for compatibility reasons
+        if (cl.name.toString == "UnknownUnionField") {
+          (
+            Option.empty[c.universe.Tree],
+            cq"""$pat => throw new RuntimeException("Can't serialise UnknownUnionField")"""
+            )
+        }
+        else {
+          val format = implicitFor(cl.asType.toType)
+          (
+            Some(cq"""$grTyp => $format.read(x)"""),
+            cq"""$pat => { $format.writableValue(x) }
+            """
+            )
+        }
+      }
+      val schemas = subClasses flatMap { cl =>
+        if (cl.name.toString == "UnknownUnionField") {
+          None
+        } else {
+          val format = implicitFor(cl.asType.toType)
+          Some(q"""$format.schema""")
+        }
+      }
+      val (readCases, writeCases) = cases.unzip
+
+      val res = q"""
+        new com.gu.marley.AvroSerialisable[$typ] {
+          val schema = com.gu.marley.AvroUnionSchema(
+            ${schemas.toList}
+          )
+          val schemaInstance = schema.apply()
+          def read(x: Any) = { x match { case ..${readCases.flatten} } }
+          def writableValue(a: $typ): Any = {
+            a match { case ..$writeCases }
+          }
+        }
+      """
+      res
+    }
+    else {
+      structMacro[T]
+    }
+  }
+
+  private def neededImplicit(typ: c.universe.Type) = {
+    val neededImplicitType = appliedType(weakTypeOf[AvroSerialisable[_]].typeConstructor, typ.dealias)
+    val foundImplicit = c.inferImplicitValue(neededImplicitType)
+    if (foundImplicit.nonEmpty) {
+      foundImplicit
+    } else {
+      q"""_root_.scala.Predef.implicitly[_root_.com.gu.marley.AvroSerialisable[$typ]]"""
+    }
+  }
+
+  private def subTypeOf(target: c.universe.Type, reference: c.universe.Type) =
+    target.typeConstructor <:< reference.typeConstructor
+
+  private val optionType = typeOf[Option[_]]
+  private val seqType = typeOf[Seq[_]]
+  private val setType = typeOf[collection.Set[_]]
+  private val mapType = typeOf[collection.Map[_, _]]
+
+  private val StringType = typeOf[String]
+
+  private def implicitFor(typ: c.universe.Type): c.Tree = typ match {
+    case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, optionType) =>
+      q"com.gu.marley.AvroSerialisable.OptionAvroSerialisable(${implicitFor(arg)})"
+    case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, seqType) =>
+      q"com.gu.marley.AvroSerialisable.SeqAvroSerialisable(${implicitFor(arg)})"
+    case TypeRef(_, _, arg :: Nil) if subTypeOf(typ, setType) =>
+      q"com.gu.marley.AvroSerialisable.SetAvroSerialisable(${implicitFor(arg)})"
+    case TypeRef(_, _, StringType :: arg :: Nil) if subTypeOf(typ, mapType) =>
+      q"com.gu.marley.AvroSerialisable.MapAvroSerialisable(${implicitFor(arg)})"
+    case _ => neededImplicit(typ)
+  }
+
 }

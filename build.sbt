@@ -1,17 +1,17 @@
 name := "marley"
 organization := "com.gu"
 
-scalaVersion := "2.11.7"
-crossScalaVersions := Seq("2.10.5", "2.11.7")
+scalaVersion := "2.11.8"
+crossScalaVersions := Seq("2.10.5", "2.11.8")
 
 libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-	"com.twitter" %% "scrooge-core" % "3.20.0",
+	"com.twitter" %% "scrooge-core" % "4.6.0",
 	"org.apache.thrift" % "libthrift" % "0.9.2",
   "org.apache.avro" % "avro" % "1.7.7",
   "org.parboiled" %% "parboiled" % "2.1.0",
-  "org.typelevel" %% "macro-compat" % "1.0.2",
-  compilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full),
+  "org.typelevel" %% "macro-compat" % "1.1.1",
+  compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
   "org.scalatest" %% "scalatest" % "2.2.5" % Test,
   "org.scalacheck" %% "scalacheck" % "1.12.4" % Test
 )

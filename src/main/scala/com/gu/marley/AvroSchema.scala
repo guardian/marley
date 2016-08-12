@@ -45,3 +45,7 @@ case class AvroRecordSchema(name: String, namespace: String, fields: (String, Av
 case class AvroEnumSchema(name: String, namespace: String, possibleValues: List[String]) extends AvroSchema {
   override def apply() = SchemaBuilder.enumeration(name).namespace(namespace).symbols(possibleValues: _*)
 }
+
+case class AvroUnionSchema(innerSchemas: List[AvroSchema]) extends AvroSchema {
+  override def apply() = Schema.createUnion(innerSchemas.map(_.apply()).asJava)
+}

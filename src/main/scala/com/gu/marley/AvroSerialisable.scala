@@ -221,7 +221,7 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
         else {
           val format = implicitFor(cl.asType.toType)
           (
-            Some(cq"""$grTyp => $format.read(x)"""),
+            Some(q"""$format.read(x)"""),
             cq"""$pat => { $format.writableValue(x) }
             """
             )
@@ -237,19 +237,22 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
       }
       val (readCases, writeCases) = cases.unzip
 
-      val res = q"""
+      val readTree = readCases.flatten.tail.foldLeft(q"scala.util.Try(${readCases.flatten.head})")((tree, reader) =>
+        q"$tree.recover{case _ => $reader}"
+      )
+
+      q"""
         new com.gu.marley.AvroSerialisable[$typ] {
           val schema = com.gu.marley.AvroUnionSchema(
             ${schemas.toList}
           )
           val schemaInstance = schema.apply()
-          def read(x: Any) = { x match { case ..${readCases.flatten} } }
+          def read(x: Any) = $readTree.get
           def writableValue(a: $typ): Any = {
             a match { case ..$writeCases }
           }
         }
       """
-      res
     }
     else {
       structMacro[T]
@@ -262,7 +265,7 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
     if (foundImplicit.nonEmpty) {
       foundImplicit
     } else {
-      q"""_root_.scala.Predef.implicitly[_root_.com.gu.marley.AvroSerialisable[$typ]]"""
+      c.abort(c.enclosingPosition, s"Expected the companion object of ${typ.dealias} to have an 'apply' method")
     }
   }
 

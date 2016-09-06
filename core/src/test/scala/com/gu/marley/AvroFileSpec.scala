@@ -2,14 +2,17 @@ package com.gu.marley
 
 import java.io.File
 
-import org.scalatest.prop.Checkers
-import org.scalatest.FlatSpec
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen._
 import org.scalacheck._
-import Gen._
-import Arbitrary.arbitrary
+import org.scalatest.FlatSpec
+import org.scalatest.prop.Checkers
 
 class AvroFileSpec extends FlatSpec with Checkers {
+  val union = ExampleUnion.Subunion1(SubUnion1("id"))
+
   it should "read back a file of page views it writes" in {
+
     val arbSubStruct = for {
       b <- arbitrary[Boolean]
     } yield SubStruct(b)
@@ -33,14 +36,16 @@ class AvroFileSpec extends FlatSpec with Checkers {
     } yield ExampleStruct(
         string, maybeString, enum, defaultBool = bool, double,
         seq, substruct, set,
-        int, short, long, byte, map
+        int, short, long, byte, map, union
       ))
 
-    implicit val enumSer = AvroSerialisable.enum[ExampleEnum]
-    implicit val subStructSer = AvroSerialisable.struct[SubStruct]
-    implicit val structSer = AvroSerialisable.struct[ExampleStruct]
-
     check { (struct: ExampleStruct) =>
+
+      implicit val enumSer = AvroSerialisable.enum[ExampleEnum]
+      implicit val subStructSer = AvroSerialisable.struct[SubStruct]
+      implicit val unionSer = AvroSerialisable.union[ExampleUnion]
+      implicit val structSer = AvroSerialisable.struct[ExampleStruct]
+
       val file = File.createTempFile("AvroTest-read-write", ".avro")
       file.deleteOnExit()
 

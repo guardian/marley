@@ -1,39 +1,52 @@
-name := "marley"
-organization := "com.gu"
+lazy val root = (project in file(".")).aggregate(core).settings(aggregate in update := false)
 
-scalaVersion := "2.11.7"
-crossScalaVersions := Seq("2.10.5", "2.11.7")
+lazy val core = project.settings(
+  name := "marley",
 
-libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-	"com.twitter" %% "scrooge-core" % "3.20.0",
-	"org.apache.thrift" % "libthrift" % "0.9.2",
-  "org.apache.avro" % "avro" % "1.7.7",
-  "org.parboiled" %% "parboiled" % "2.1.0",
-  "org.typelevel" %% "macro-compat" % "1.0.2",
-  compilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full),
-  "org.scalatest" %% "scalatest" % "2.2.5" % Test,
-  "org.scalacheck" %% "scalacheck" % "1.12.4" % Test
+  libraryDependencies ++= Seq(
+    "org.apache.avro" % "avro" % "1.7.7",
+    "org.parboiled" %% "parboiled" % "2.1.0",
+    "org.typelevel" %% "macro-compat" % "1.1.1",
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+    "org.scalatest" %% "scalatest" % "2.2.5" % Test,
+    "org.scalacheck" %% "scalacheck" % "1.12.4" % Test
+  )
+).settings(commonSettings: _*).settings(publishSettings: _*).dependsOn(thriftExample % "test->test")
+
+lazy val thriftExample = project.settings(commonSettings: _*)
+
+val commonSettings = Seq(
+  organization := "com.gu",
+
+  scalaVersion := "2.11.8",
+  crossScalaVersions := Seq("2.10.5", "2.11.8"),
+
+  libraryDependencies ++= Seq(
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    "com.twitter" %% "scrooge-core" % "4.6.0",
+    "org.apache.thrift" % "libthrift" % "0.9.2"
+  )
 )
 
-homepage := Some(url("https://github.com/guardian/marley"))
-licenses := Seq("Apache V2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
-publishMavenStyle := true
-publishArtifact in Test := false
-scmInfo := Some(ScmInfo(
-  url("https://github.com/guardian/marley"),
-  "scm:git:git@github.com:guardian/marley.git"
-))
-
-pomExtra := {
-  <developers>
-    <developer>
-      <id>philwills</id>
-      <name>Phil Wills</name>
-      <url>https://github.com/philwills</url>
-    </developer>
-  </developers>
-}
+val publishSettings = Seq(
+  homepage := Some(url("https://github.com/guardian/marley")),
+  licenses := Seq("Apache V2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+  publishMavenStyle := true,
+  publishArtifact in Test := false,
+  scmInfo := Some(ScmInfo(
+    url("https://github.com/guardian/marley"),
+    "scm:git:git@github.com:guardian/marley.git"
+  )),
+  pomExtra := {
+    <developers>
+      <developer>
+        <id>philwills</id>
+        <name>Phil Wills</name>
+        <url>https://github.com/philwills</url>
+      </developer>
+    </developers>
+  }
+)
 
 import ReleaseTransformations._
 releaseProcess := Seq[ReleaseStep](

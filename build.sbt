@@ -7,6 +7,7 @@ lazy val core = project.settings(
     "org.apache.avro" % "avro" % "1.7.7",
     "org.parboiled" %% "parboiled" % "2.1.0",
     "org.typelevel" %% "macro-compat" % "1.1.1",
+    "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
     "org.scalatest" %% "scalatest" % "2.2.5" % Test,
     "org.scalacheck" %% "scalacheck" % "1.12.4" % Test

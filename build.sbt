@@ -44,6 +44,11 @@ val publishSettings = Seq(
         <name>Phil Wills</name>
         <url>https://github.com/philwills</url>
       </developer>
+      <developer>
+        <id>emma-p</id>
+        <name>Emmanuelle Poirier</name>
+        <url>https://github.com/emma-p</url>
+      </developer>
     </developers>
   }
 )

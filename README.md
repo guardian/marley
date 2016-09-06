@@ -11,9 +11,7 @@ Installation
 libraryDependencies ++= Seq(
   "com.gu" %% "marley" % "0.1.2"
 )
-```
-
-Marley is published for Scala 2.11 and Scala 2.10 thanks to [macro-compat](https://github.com/milessabin/macro-compat). 
+``` 
 
 Usage
 -----

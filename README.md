@@ -9,7 +9,7 @@ Installation
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.gu" %% "marley" % "0.1.2"
+  "com.gu" %% "marley" % "0.2.0"
 )
 ``` 
 

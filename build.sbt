@@ -29,6 +29,8 @@ val commonSettings = Seq(
   )
 )
 
+publishTo in ThisBuild := sonatypePublishTo.value
+
 val publishSettings = Seq(
   homepage := Some(url("https://github.com/guardian/marley")),
   licenses := Seq("Apache V2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),

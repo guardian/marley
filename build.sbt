@@ -19,8 +19,8 @@ lazy val thriftExample = project.settings(commonSettings: _*)
 val commonSettings = Seq(
   organization := "com.gu",
 
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.10.5", "2.11.8"),
+  scalaVersion := "2.11.12",
+  crossScalaVersions := Seq(scalaVersion.value),
 
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
@@ -32,6 +32,7 @@ val commonSettings = Seq(
 val publishSettings = Seq(
   homepage := Some(url("https://github.com/guardian/marley")),
   licenses := Seq("Apache V2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+  publishTo := sonatypePublishTo.value,
   publishMavenStyle := true,
   publishArtifact in Test := false,
   scmInfo := Some(ScmInfo(
@@ -63,9 +64,9 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  ReleaseStep(action = Command.process("publishSigned", _)),
+  releaseStepCommand("publishSigned"),
   setNextVersion,
   commitNextVersion,
-  ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+  releaseStepCommand("sonatypeReleaseAll"),
   pushChanges
 )

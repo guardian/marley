@@ -8,6 +8,8 @@ import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 import macrocompat.bundle
 
+import scala.collection.immutable.SortedSet
+
 
 trait AvroSerialisable[T] {
   val schema: AvroSchema
@@ -203,9 +205,12 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
   }
 
   def unionMacro[T: c.WeakTypeTag]: Tree = {
+    implicit val symbolOrdering: Ordering[c.universe.Symbol] = Ordering.by(_.fullName)
+
     val typ = weakTypeOf[T].dealias
     if (typ.typeSymbol.isAbstract) {
-      val subClasses = typ.typeSymbol.asClass.knownDirectSubclasses
+      val subClasses: SortedSet[c.universe.Symbol] = // we need reproducible ordering for schema fingerprinting!
+        SortedSet() ++ typ.typeSymbol.asClass.knownDirectSubclasses
 
       val cases = subClasses map { cl =>
         val typ = tq"${cl.asType}"

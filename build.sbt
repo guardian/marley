@@ -19,8 +19,8 @@ lazy val thriftExample = project.settings(commonSettings: _*)
 val commonSettings = Seq(
   organization := "com.gu",
 
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.10.5", "2.11.8"),
+  scalaVersion := "2.11.12",
+  crossScalaVersions := Seq(scalaVersion.value),
 
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,

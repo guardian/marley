@@ -209,8 +209,8 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
 
     val typ = weakTypeOf[T].dealias
     if (typ.typeSymbol.isAbstract) {
-      val subClasses: SortedSet[c.universe.Symbol] = // we need reproducible ordering for schema fingerprinting!
-        SortedSet() ++ typ.typeSymbol.asClass.knownDirectSubclasses
+      val subClasses: Seq[c.universe.Symbol] = // we need reproducible ordering for schema fingerprinting!
+        typ.typeSymbol.asClass.knownDirectSubclasses.toSeq.sorted
 
       val cases = subClasses map { cl =>
         val typ = tq"${cl.asType}"

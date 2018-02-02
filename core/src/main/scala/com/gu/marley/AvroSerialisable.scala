@@ -203,9 +203,12 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
   }
 
   def unionMacro[T: c.WeakTypeTag]: Tree = {
+    implicit val symbolOrdering: Ordering[c.universe.Symbol] = Ordering.by(_.fullName)
+
     val typ = weakTypeOf[T].dealias
     if (typ.typeSymbol.isAbstract) {
-      val subClasses = typ.typeSymbol.asClass.knownDirectSubclasses
+      val subClasses: Seq[c.universe.Symbol] = // we need reproducible ordering for schema fingerprinting!
+        typ.typeSymbol.asClass.knownDirectSubclasses.toSeq.sorted
 
       val cases = subClasses map { cl =>
         val typ = tq"${cl.asType}"

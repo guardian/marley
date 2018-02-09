@@ -39,6 +39,7 @@ lazy val root = (project in file(".")).aggregate(core).settings(
 import ReleaseTransformations._
 
 releaseCrossBuild := true // true if you cross-build the project for multiple Scala versions
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
@@ -47,7 +48,7 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  releaseStepCommand("+publishSigned"),
+  releaseStepCommand("publishSigned"),
   setNextVersion,
   commitNextVersion,
   releaseStepCommand("sonatypeReleaseAll"),

@@ -37,6 +37,8 @@ lazy val root = (project in file(".")).aggregate(core).settings(
 )
 
 import ReleaseTransformations._
+
+releaseCrossBuild := true // true if you cross-build the project for multiple Scala versions
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,

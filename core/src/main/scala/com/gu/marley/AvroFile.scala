@@ -40,7 +40,7 @@ object AvroFile {
     val datumReader = new GenericDatumReader[GenericRecord]()
     val dataFileReader = new DataFileReader[GenericRecord](file, datumReader)
 
-    import collection.convert.wrapAsScala._
+    import collection.JavaConverters._
 
     try {
       iterableAsScalaIterable(dataFileReader).map(AvroSerialisable.read[T])

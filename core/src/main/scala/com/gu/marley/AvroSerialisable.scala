@@ -3,7 +3,7 @@ import com.twitter.scrooge.{ThriftEnum, ThriftStruct, ThriftUnion}
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Type
 
-import collection.convert.decorateAll._
+import collection.JavaConverters._
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
@@ -68,10 +68,10 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
     override def read(x: Any): Option[T] = Option(x).map(w.read)
   }
 
-  def SeqAvroSerialisable[T](w: AvroSerialisable[T]) = new AvroSerialisable[Seq[T]] {
+  def SeqAvroSerialisable[T](w: AvroSerialisable[T]) = new AvroSerialisable[collection.Seq[T]] {
     override val schema = AvroSeqSchema(w.schema)
-    override def writableValue(t: Seq[T]): Any = t.map(w.writableValue).asJava
-    override def read(x: Any): Seq[T] = x.asInstanceOf[java.util.List[Any]].asScala.map(w.read).toSeq
+    override def writableValue(t: collection.Seq[T]): Any = t.map(w.writableValue).asJava
+    override def read(x: Any): collection.Seq[T] = x.asInstanceOf[java.util.List[Any]].asScala.map(w.read).toSeq
   }
 
   def SetAvroSerialisable[T](w: AvroSerialisable[T]) = new AvroSerialisable[scala.collection.Set[T]] {
@@ -275,7 +275,7 @@ class AvroSerialisableMacro(val c: blackbox.Context) {
     target.typeConstructor <:< reference.typeConstructor
 
   private val optionType = typeOf[Option[_]]
-  private val seqType = typeOf[Seq[_]]
+  private val seqType = typeOf[collection.Seq[_]]
   private val setType = typeOf[collection.Set[_]]
   private val mapType = typeOf[collection.Map[_, _]]
 

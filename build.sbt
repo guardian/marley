@@ -1,6 +1,6 @@
-scalaVersion in ThisBuild := "2.12.10"
+scalaVersion in ThisBuild := "2.13.1"
 
-crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.11.12")
+crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.12.10")
 
 val commonSettings = Seq(
   organization := "com.gu",
@@ -13,13 +13,19 @@ val commonSettings = Seq(
   )
 )
 
+def versionDependent[T](scalaV: String, handlesAnnotations: Boolean, value: T):Option[T] = {
+  val preMacroAnnotationsScalaVersions = Set("2.11", "2.12")
+  Some(value).filter(_ => handlesAnnotations != preMacroAnnotationsScalaVersions.contains(scalaV))
+}
+
 lazy val core = project.settings(
   name := "marley",
-  libraryDependencies ++= Seq(
+  Compile / scalacOptions += versionDependent(scalaBinaryVersion.value, handlesAnnotations=true, "-Ymacro-annotations"),
+  libraryDependencies ++= versionDependent(scalaBinaryVersion.value, handlesAnnotations=false,
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)).toSeq ++ Seq(
     "org.apache.avro" % "avro" % "1.7.7",
     "org.parboiled" %% "parboiled" % "2.1.8",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
     "org.scalatest" %% "scalatest" % "3.0.8" % Test,
     "org.scalacheck" %% "scalacheck" % "1.14.2" % Test
   )

@@ -6,7 +6,6 @@ import org.apache.avro.Schema.Type
 import collection.convert.decorateAll._
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
-import macrocompat.bundle
 
 
 trait AvroSerialisable[T] {
@@ -102,7 +101,7 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
 trait LowPriorityImplicitSerialisable {
   implicit def struct[T <: ThriftStruct]: AvroSerialisable[T] = macro AvroSerialisableMacro.structMacro[T]
 }
-@bundle
+
 class AvroSerialisableMacro(val c: blackbox.Context) {
   import c.universe._
 

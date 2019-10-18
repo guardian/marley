@@ -36,8 +36,6 @@ lazy val root = (project in file(".")).aggregate(core).settings(
   publishLocal := {}
 )
 
-publishTo := sonatypePublishToBundle.value
-
 import ReleaseTransformations._
 import sbt.Keys.scalaBinaryVersion
 

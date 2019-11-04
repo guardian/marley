@@ -25,7 +25,7 @@ class AvroFileSpec extends FlatSpec with Checkers {
       enum <- arbEnum
       bool <- arbitrary[Boolean]
       double <- arbitrary[Double]
-      seq <- arbitrary[Option[Seq[String]]]
+      seq <- arbitrary[Option[collection.Seq[String]]]
       substruct <- arbSubStruct
       set <- arbitrary[Option[Set[String]]]
       int <- arbitrary[Option[Int]]

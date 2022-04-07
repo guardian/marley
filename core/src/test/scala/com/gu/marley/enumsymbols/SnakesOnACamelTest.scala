@@ -1,8 +1,9 @@
 package com.gu.marley.enumsymbols
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class SnakesOnACamelTest extends FlatSpec with Matchers {
+class SnakesOnACamelTest extends AnyFlatSpec with Matchers {
 
   it should "transform camel case with first-letter upper to snake case" in {
     SnakesOnACamel.toSnake("AndroidNative123App") should be ("ANDROID_NATIVE123_APP")

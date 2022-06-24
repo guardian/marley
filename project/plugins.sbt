@@ -2,7 +2,7 @@
 // Instead, force a slightly more recent version
 libraryDependencies += "org.apache.thrift" % "libthrift" % "0.12.0"
 
-addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "19.10.0")
+addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "19.12.0")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.12")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")

@@ -5,10 +5,10 @@ import java.io.File
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen._
 import org.scalacheck._
-import org.scalatest.FlatSpec
 import org.scalatest.prop.Checkers
+import org.scalatest.flatspec.AnyFlatSpec
 
-class AvroFileSpec extends FlatSpec with Checkers {
+class AvroFileSpec extends AnyFlatSpec with Checkers {
   val union = ExampleUnion.Subunion1(SubUnion1("id"))
 
   it should "read back a file of page views it writes" in {

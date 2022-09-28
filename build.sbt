@@ -26,7 +26,7 @@ lazy val core = project.settings(
     "org.apache.avro" % "avro" % "1.7.7",
     "org.parboiled" %% "parboiled" % "2.1.8",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
-    "org.scalatest" %% "scalatest" % "3.0.9" % Test,
+    "org.scalatest" %% "scalatest" % "3.2.14" % Test,
     "org.scalacheck" %% "scalacheck" % "1.14.2" % Test
   )
 ).settings(commonSettings: _*).dependsOn(thriftExample % "test->test")

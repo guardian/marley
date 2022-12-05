@@ -1,6 +1,6 @@
-scalaVersion in ThisBuild := "2.13.1"
+scalaVersion in ThisBuild := "2.13.10"
 
-crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.12.10")
+crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.12.17")
 
 val commonSettings = Seq(
   organization := "com.gu",
@@ -9,7 +9,7 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     "com.twitter" %% "scrooge-core" % "19.10.0",
-    "org.apache.thrift" % "libthrift" % "0.12.0"
+    "org.apache.thrift" % "libthrift" % "0.17.0"
   )
 )
 
@@ -23,7 +23,7 @@ lazy val core = project.settings(
   Compile / scalacOptions += versionDependent(scalaBinaryVersion.value, handlesAnnotations=true, "-Ymacro-annotations"),
   libraryDependencies ++= versionDependent(scalaBinaryVersion.value, handlesAnnotations=false,
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)).toSeq ++ Seq(
-    "org.apache.avro" % "avro" % "1.7.7",
+    "org.apache.avro" % "avro" % "1.11.1",
     "org.parboiled" %% "parboiled" % "2.1.8",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.0.9" % Test,

@@ -1,31 +1,32 @@
-ThisBuild/scalaVersion := "2.13.10"
+ThisBuild/scalaVersion := "3.2.1"
 
-ThisBuild/crossScalaVersions := Seq(scalaVersion.value)
+ThisBuild/crossScalaVersions := Seq(scalaVersion.value, "2.13.10")
 
 val commonSettings = Seq(
   organization := "com.gu",
   homepage := Some(url("https://github.com/guardian/marley")),
   licenses := Seq("Apache V2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   libraryDependencies ++= Seq(
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "com.twitter" %% "scrooge-core" % "22.12.0",
+    ("com.twitter" %% "scrooge-core" % "22.12.0").cross(CrossVersion.for3Use2_13),
     "org.apache.thrift" % "libthrift" % "0.17.0"
-  )
+    ) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, _)) => Seq(
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+        "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
+      )
+      case _ => Seq.empty
+  })
 )
-
-def versionDependent[T](scalaV: String, handlesAnnotations: Boolean, value: T):Option[T] = {
-  val preMacroAnnotationsScalaVersions = Set("2.11", "2.12")
-  Some(value).filter(_ => handlesAnnotations != preMacroAnnotationsScalaVersions.contains(scalaV))
-}
 
 lazy val core = project.settings(
   name := "marley",
-  Compile / scalacOptions += versionDependent(scalaBinaryVersion.value, handlesAnnotations=true, "-Ymacro-annotations"),
-  libraryDependencies ++= versionDependent(scalaBinaryVersion.value, handlesAnnotations=false,
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)).toSeq ++ Seq(
+  Compile / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, _)) => Some("-Ymacro-annotations")
+    case _ => None
+  }),
+  libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % "1.7.7",
     "org.parboiled" %% "parboiled" % "2.4.1",
-    "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.15" % Test,
     "org.scalatestplus" %% "scalacheck-1-17" % "3.2.15.0" % Test
   ),

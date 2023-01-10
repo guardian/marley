@@ -1,6 +1,6 @@
-scalaVersion in ThisBuild := "2.13.1"
+scalaVersion in ThisBuild := "2.13.10"
 
-crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.12.10")
+crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.12.17")
 
 val commonSettings = Seq(
   organization := "com.gu",
@@ -28,6 +28,10 @@ lazy val core = project.settings(
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.0.9" % Test,
     "org.scalacheck" %% "scalacheck" % "1.14.2" % Test
+  ),
+  Test/testOptions += Tests.Argument(
+    TestFrameworks.ScalaTest,
+    "-u", s"test-results/scala-${scalaVersion.value}"
   )
 ).settings(commonSettings: _*).dependsOn(thriftExample % "test->test")
 

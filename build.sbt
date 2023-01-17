@@ -1,6 +1,6 @@
-scalaVersion in ThisBuild := "2.13.10"
+ThisBuild/scalaVersion := "2.13.10"
 
-crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.12.17")
+ThisBuild/crossScalaVersions := Seq(scalaVersion.value)
 
 val commonSettings = Seq(
   organization := "com.gu",
@@ -37,10 +37,10 @@ lazy val core = project.settings(
 
 lazy val thriftExample = project.settings(commonSettings: _*)
 
-publishArtifact in Test := false
+Test/publishArtifact := false
 
 lazy val root = (project in file(".")).aggregate(core).settings(
-  aggregate in update := false,
+  update/aggregate := false,
   publishArtifact := false,
   publish := {},
   publishLocal := {}

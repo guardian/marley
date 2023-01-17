@@ -1,4 +1,4 @@
-Marley [![Build Status](https://travis-ci.org/guardian/marley.svg?branch=master)](https://travis-ci.org/guardian/marley) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12)
+Marley [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12)
 ======
 
 Marley is a library for serialising [Scrooge](https://twitter.github.io/scrooge/) generated classes representing 

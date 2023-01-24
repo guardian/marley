@@ -92,7 +92,7 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
         }
     }
 
-  implicit def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
+  implicit def `enum`[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
 
   implicit def union[T <: ThriftUnion]: AvroSerialisable[T] = macro AvroSerialisableMacro.unionMacro[T]
 

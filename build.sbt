@@ -1,6 +1,6 @@
-scalaVersion in ThisBuild := "2.13.1"
+ThisBuild/scalaVersion := "2.13.10"
 
-crossScalaVersions in ThisBuild := Seq(scalaVersion.value, "2.12.10")
+ThisBuild/crossScalaVersions := Seq(scalaVersion.value)
 
 val commonSettings = Seq(
   organization := "com.gu",
@@ -8,8 +8,8 @@ val commonSettings = Seq(
   licenses := Seq("Apache V2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "com.twitter" %% "scrooge-core" % "19.10.0",
-    "org.apache.thrift" % "libthrift" % "0.12.0"
+    "com.twitter" %% "scrooge-core" % "22.12.0",
+    "org.apache.thrift" % "libthrift" % "0.17.0"
   )
 )
 
@@ -24,19 +24,23 @@ lazy val core = project.settings(
   libraryDependencies ++= versionDependent(scalaBinaryVersion.value, handlesAnnotations=false,
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)).toSeq ++ Seq(
     "org.apache.avro" % "avro" % "1.7.7",
-    "org.parboiled" %% "parboiled" % "2.1.8",
+    "org.parboiled" %% "parboiled" % "2.4.1",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
-    "org.scalatest" %% "scalatest" % "3.0.9" % Test,
-    "org.scalacheck" %% "scalacheck" % "1.14.2" % Test
+    "org.scalatest" %% "scalatest" % "3.2.15" % Test,
+    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.15.0" % Test
+  ),
+  Test/testOptions += Tests.Argument(
+    TestFrameworks.ScalaTest,
+    "-u", s"test-results/scala-${scalaVersion.value}"
   )
 ).settings(commonSettings: _*).dependsOn(thriftExample % "test->test")
 
 lazy val thriftExample = project.settings(commonSettings: _*)
 
-publishArtifact in Test := false
+Test/publishArtifact := false
 
 lazy val root = (project in file(".")).aggregate(core).settings(
-  aggregate in update := false,
+  update/aggregate := false,
   publishArtifact := false,
   publish := {},
   publishLocal := {}

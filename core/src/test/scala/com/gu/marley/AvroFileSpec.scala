@@ -1,15 +1,40 @@
 package com.gu.marley
 
-import java.io.File
+import com.twitter.scrooge.ThriftStruct
 
+import java.io.File
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen._
 import org.scalacheck._
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
-class AvroFileSpec extends AnyFlatSpec with Checkers {
+class AvroFileSpec extends AnyFlatSpec with Checkers with Matchers {
   val union = ExampleUnion.Subunion1(SubUnion1("id"))
+
+  def checkRoundTrip[T](v: T)(implicit as: AvroSerialisable[T]): Unit = {
+    as.read(as.writableValue(v)) shouldEqual v
+  }
+
+  it should "handle an enum" in {
+    implicit val enumSer: AvroSerialisable[ExampleEnum] = AvroSerialisable.`enum`[ExampleEnum]
+
+    checkRoundTrip[ExampleEnum](ExampleEnum.A1)
+    checkRoundTrip[ExampleEnum](ExampleEnum.B2)
+    checkRoundTrip[ExampleEnum](ExampleEnum.C3)
+  }
+
+  it should "handle a union" in {
+    implicit val unionSer: AvroSerialisable[ExampleUnion] = AvroSerialisable.union[ExampleUnion]
+    checkRoundTrip(union)
+  }
+
+  it should "handle a struct" in {
+    implicit val subStructSer: AvroSerialisable[SubStruct] = AvroSerialisable.struct[SubStruct]
+
+    checkRoundTrip(SubStruct(falseOrTrue = true))
+  }
 
   it should "read back a file of page views it writes" in {
 
@@ -17,12 +42,12 @@ class AvroFileSpec extends AnyFlatSpec with Checkers {
       b <- arbitrary[Boolean]
     } yield SubStruct(b)
 
-    val arbEnum = oneOf(ExampleEnum.A1, ExampleEnum.B2, ExampleEnum.C3)
+    val arbEnum = org.scalacheck.Gen.oneOf(ExampleEnum.A1, ExampleEnum.B2, ExampleEnum.C3)
 
     implicit val arbStruct: Arbitrary[ExampleStruct] = Arbitrary(for {
       string <- arbitrary[String]
       maybeString <- arbitrary[Option[String]]
-      enum <- arbEnum
+      anEnum <- arbEnum
       bool <- arbitrary[Boolean]
       double <- arbitrary[Double]
       seq <- arbitrary[Option[collection.Seq[String]]]
@@ -34,18 +59,17 @@ class AvroFileSpec extends AnyFlatSpec with Checkers {
       byte <- arbitrary[Option[Byte]]
       map <- arbitrary[Option[Map[String, Int]]]
     } yield ExampleStruct(
-        string, maybeString, enum, defaultBool = bool, double,
+        string, maybeString, anEnum, defaultBool = bool, double,
         seq, substruct, set,
         int, short, long, byte, map, union
       ))
 
+    implicit val enumSer: AvroSerialisable[ExampleEnum] = AvroSerialisable.`enum`[ExampleEnum]
+    implicit val unionSer: AvroSerialisable[ExampleUnion] = AvroSerialisable.union[ExampleUnion]
+    implicit val subStructSer: AvroSerialisable[SubStruct] = AvroSerialisable.struct[SubStruct]
+    implicit val structSer: AvroSerialisable[ExampleStruct] = AvroSerialisable.struct[ExampleStruct]
+
     check { (struct: ExampleStruct) =>
-
-      implicit val enumSer = AvroSerialisable.enum[ExampleEnum]
-      implicit val subStructSer = AvroSerialisable.struct[SubStruct]
-      implicit val unionSer = AvroSerialisable.union[ExampleUnion]
-      implicit val structSer = AvroSerialisable.struct[ExampleStruct]
-
       val file = File.createTempFile("AvroTest-read-write", ".avro")
       file.deleteOnExit()
 
@@ -54,4 +78,5 @@ class AvroFileSpec extends AnyFlatSpec with Checkers {
       AvroFile.read[ExampleStruct](file).head == struct
     }
   }
+
 }

@@ -2,3 +2,8 @@
 target
 .bsp/
 test-results/
+
+.bloop/
+.metals/
+.vscode/
+metals.sbt

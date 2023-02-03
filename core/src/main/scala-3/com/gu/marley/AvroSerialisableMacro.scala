@@ -1,41 +1,43 @@
 package com.gu.marley
 
+import com.twitter.scrooge.{ThriftEnum, ThriftEnumObject}
+
 import scala.quoted.*
 
 class AvroSerialisableMacro {
-    def enumMacro[T: Type](using Quotes) = {
+    def enumMacro[T <: ThriftEnum](using Quotes, Type[T]) = {
         import quotes.reflect.*
-        val typ = TypeRepr.of[T]
 
-        def findCompanionOfThisOrParentWithMethod(method: String): Option[Symbol] =
-            (for {
-                baseClass <- typ.baseClasses
-                list <- baseClass.companionClass.declarations.find(_.name == method)
-            } yield list).headOption
-        
-        val listMethod = findCompanionOfThisOrParentWithMethod("list").getOrElse(
-            report.errorAndAbort("Expected ThriftEnum companion to have method 'list'"))
+        val typSymbol = TypeRepr.of[T].typeSymbol
+        val listMethod: Symbol = typSymbol.companionClass.declarations.find(_.name == "list").get
 
-        val pkg = typ.typeSymbol.owner.fullName
+        def findCompanionOfThisOrParent(): Expr[ThriftEnumObject[T]] = Ref(typSymbol.companionModule)
+          .select(listMethod).appliedToArgs(Nil) // TODO I'm not entirely sure if this is necessary...
+          .asExprOf[ThriftEnumObject[T]]
+
+        val listOfValues: Expr[List[T]] = '{
+            ${ findCompanionOfThisOrParent() }.list
+        }
+
+        val pkg = typSymbol.owner.fullName
 
         '{
             new com.gu.marley.AvroSerialisable[T] {
-            val schema = {
-            com.gu.marley.AvroEnumSchema(
-                ${Expr(typ.typeSymbol.name)},
+            val schema = com.gu.marley.AvroEnumSchema(
+                ${Expr(typSymbol.name)},
                 ${Expr(pkg)},
-                ${listMethod}.map(_.name).map(com.gu.marley.enumsymbols.SnakesOnACamel.toSnake)
+                ${listOfValues}.map(_.name).map(com.gu.marley.enumsymbols.SnakesOnACamel.toSnake)
             )
-            }
             val schemaInstance = schema.apply()
-            val valueMap = Map($listMethod.map(x => x ->
-            org.apache.avro.generic.GenericData.get.createEnum(
-                com.gu.marley.enumsymbols.SnakesOnACamel.toSnake(x.name), schemaInstance)
+
+            val valueMap: Map[T, Any] = Map(${listOfValues}.map(x => x ->
+              org.apache.avro.generic.GenericData.get.createEnum(
+                  com.gu.marley.enumsymbols.SnakesOnACamel.toSnake(x.name), schemaInstance)
             ): _*)
 
-            def writableValue(t: $typ) = valueMap(t)
+            def writableValue(t: T) = valueMap(t)
 
-            val readMap = Map($listMethod.map(x =>
+            val readMap: Map[Any, T] = Map(${listOfValues}.map(x =>
             com.gu.marley.enumsymbols.SnakesOnACamel.toSnake(x.name) -> x
             ): _*)
 

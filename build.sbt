@@ -1,7 +1,3 @@
-ThisBuild/scalaVersion := "3.2.1"
-
-ThisBuild/crossScalaVersions := Seq(scalaVersion.value, "2.13.10")
-
 val commonSettings = Seq(
   organization := "com.gu",
   homepage := Some(url("https://github.com/guardian/marley")),
@@ -24,6 +20,8 @@ lazy val core = project.settings(
     case Some((2, _)) => Some("-Ymacro-annotations")
     case _ => None
   }),
+  scalaVersion := "3.2.1",
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.10"),
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % "1.7.7",
     "org.parboiled" %% "parboiled" % "2.4.1",
@@ -36,7 +34,9 @@ lazy val core = project.settings(
   )
 ).settings(commonSettings: _*).dependsOn(thriftExample % "test->test")
 
-lazy val thriftExample = project.settings(commonSettings: _*)
+lazy val thriftExample = project.settings(commonSettings: _*).settings(
+  scalaVersion := "2.13.10"
+)
 
 Test/publishArtifact := false
 

@@ -92,13 +92,14 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
         }
     }
 
-  implicit def `enum`[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
+  // implicit def `enum`[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
+  implicit inline def `enum`[T <: ThriftEnum]: AvroSerialisable[T] = ${ AvroSerialisableMacro.enumMacro[T] }
 
-  implicit def union[T <: ThriftUnion]: AvroSerialisable[T] = macro AvroSerialisableMacro.unionMacro[T]
+  implicit def union[T <: ThriftUnion]: AvroSerialisable[T] = ??? // macro AvroSerialisableMacro.unionMacro[T]
 
 }
 
 trait LowPriorityImplicitSerialisable {
-  implicit def struct[T <: ThriftStruct]: AvroSerialisable[T] = macro AvroSerialisableMacro.structMacro[T]
+  implicit def struct[T <: ThriftStruct]: AvroSerialisable[T] = ??? // macro AvroSerialisableMacro.structMacro[T]
 }
 

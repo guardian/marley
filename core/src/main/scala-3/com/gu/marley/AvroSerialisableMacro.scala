@@ -1,6 +1,6 @@
 package com.gu.marley
 
-import com.twitter.scrooge.{ThriftEnum, ThriftEnumObject}
+import com.twitter.scrooge.{ThriftEnum, ThriftEnumObject, ThriftStruct}
 
 import scala.quoted.*
 
@@ -39,8 +39,20 @@ object AvroSerialisableMacro {
         }
     }
 
-    def unionMacro = ???
+    def structMacro[T <: ThriftStruct](using Quotes, Type[T]): Expr[AvroSerialisable[T]] = {
+        import quotes.reflect.*
 
-    def structMacro = ???
+        val typSymbol = TypeRepr.of[T].typeSymbol
+
+        val apply = typSymbol.companionModule.declaredMethod("apply").head
+
+        val fields = apply.paramSymss.head.map(param => (param.name, param.signature))
+
+        println(fields)
+
+        ???
+    }
+
+    def unionMacro = ???
 
 }

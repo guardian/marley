@@ -100,6 +100,6 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
 }
 
 trait LowPriorityImplicitSerialisable {
-  implicit def struct[T <: ThriftStruct]: AvroSerialisable[T] = ??? // macro AvroSerialisableMacro.structMacro[T]
+  implicit inline def struct[T <: ThriftStruct]: AvroSerialisable[T] = ${ AvroSerialisableMacro.structMacro[T] }
 }
 

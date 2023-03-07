@@ -1,10 +1,14 @@
 package com.gu.marley.enumsymbols
 
-import org.parboiled2._
-import org.parboiled2.CharPredicate._
+import com.twitter.scrooge.ThriftEnum
+import org.parboiled2.*
+import org.parboiled2.CharPredicate.*
 
 object SnakesOnACamel {
   def toSnake(camel: String): String = new CamelToSnake(camel).camelName.run().get
+  
+  def toSnake(v: ThriftEnum): String = toSnake(v.name)
+  
   def toCamel(snake: String): String = new SnakeToCamel(snake).snakeName.run().get
 }
 

@@ -4,8 +4,8 @@ import com.twitter.scrooge.ThriftStruct
 
 import java.io.File
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen._
-import org.scalacheck._
+import org.scalacheck.Gen.*
+import org.scalacheck.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
@@ -13,16 +13,16 @@ import org.scalatestplus.scalacheck.Checkers
 class AvroFileSpec extends AnyFlatSpec with Checkers with Matchers {
   val union = ExampleUnion.Subunion1(SubUnion1("id"))
 
-  def checkRoundTrip[T](v: T)(implicit as: AvroSerialisable[T]): Unit = {
+  def checkRoundTrip[T](v: T)(as: AvroSerialisable[T]): Unit = {
     as.read(as.writableValue(v)) shouldEqual v
   }
 
   it should "handle an enum" in {
     implicit val enumSer: AvroSerialisable[ExampleEnum] = AvroSerialisable.`enum`[ExampleEnum]
 
-    checkRoundTrip[ExampleEnum](ExampleEnum.A1)
-    checkRoundTrip[ExampleEnum](ExampleEnum.B2)
-    checkRoundTrip[ExampleEnum](ExampleEnum.C3)
+    checkRoundTrip(ExampleEnum.A1)
+    checkRoundTrip(ExampleEnum.B2)
+    checkRoundTrip(ExampleEnum.C3)
   }
 
   it should "handle a union" in {

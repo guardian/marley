@@ -48,11 +48,25 @@ object AvroSerialisableMacro {
 
         val fields = apply.paramSymss.head.map(param => (param.name, param.signature))
 
+        val pkg = typSymbol.owner.fullName
+
         println(fields)
 
         ???
     }
 
     def unionMacro = ???
+
+    private def implicitFor[T](typ: T)(using Quotes, Type[T]): Expr[AvroSerialisable[T]] = {
+        import quotes.reflect.*
+
+        val typRepr = TypeRepr.of[T]
+
+        typRepr match {
+            case AppliedType(Option, arg :: Nil) => ('{
+                com.gu.marley.AvroSerialisable.OptionAvroSerialisable(${implicitFor(arg.asType)})
+            }).asExprOf[AvroSerialisable[T]]
+        }
+    }
 
 }

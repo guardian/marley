@@ -48,11 +48,45 @@ object AvroSerialisableMacro {
 
         val fields = apply.paramSymss.head.map(param => (param.name, param.signature))
 
+
+
         val pkg = typSymbol.owner.fullName
 
         println(fields)
 
-        ???
+        val fieldNamesWithImplicits: Seq[(String, Expr[AvroSerialisable[_]])] = Seq.empty
+
+        val fieldSchemas: Seq[Expr[(String, AvroSchema)]] =
+            fieldNamesWithImplicits.map { case (fieldName: String, implicitSerialisable: AvroSerialisable[_]) =>
+              '{fieldName -> (${implicitSerialisable}.schema)}
+            }
+
+        '{
+            new com.gu.marley.AvroSerialisable[T] {
+                val schema = com.gu.marley.AvroRecordSchema(
+                    ${ Expr(typSymbol.name) },
+                    ${ Expr(pkg) },
+                    ${ Varargs(fieldSchemas) }: _*
+                )
+                val schemaInstance = schema.apply()
+
+
+                def writableValue(t: T) = {
+                    val foo: Seq[(String, Any)] = ${ Expr.ofSeq(
+                        fieldNamesWithImplicits.map { case (fieldName, implicitSerialisable) =>
+                            //'{${fieldName} -> ${implicitSerialisable}.writableValue(t.$fieldName)}
+                            '{ $fieldName -> ${ implicitSerialisable }.writableValue(${ Select.unique(('t).asTerm, fieldName) }) }
+                        }
+                    ) }
+
+                    foo.foldLeft(
+                        new org.apache.avro.generic.GenericRecordBuilder(schemaInstance)
+                    ) { (b, nv) => b.set(nv._1, nv._2) }.build
+                }
+
+                def read(x: Any) = ???
+            }
+        }
     }
 
     def unionMacro = ???

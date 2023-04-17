@@ -20,7 +20,7 @@ lazy val core = project.settings(
     case Some((2, _)) => Some("-Ymacro-annotations")
     case _ => None
   }),
-  scalaVersion := "3.2.1",
+  scalaVersion := "3.2.2",
   crossScalaVersions := Seq(scalaVersion.value, "2.13.10"),
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % "1.7.7",

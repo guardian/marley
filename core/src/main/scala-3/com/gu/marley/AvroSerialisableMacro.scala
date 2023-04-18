@@ -44,22 +44,32 @@ object AvroSerialisableMacro {
 
         val typSymbol = TypeRepr.of[T].typeSymbol
 
-        val apply = typSymbol.companionModule.declaredMethod("apply").head
+        val applyMethod = typSymbol.companionModule.declaredMethod("apply").head
 
-        val fields = apply.paramSymss.head.map(param => (param.name, param.signature))
-
-
+        val fields = applyMethod.paramSymss.head.map(param => (param.name, param.signature))
 
         val pkg = typSymbol.owner.fullName
 
+        println(applyMethod)
         println(fields)
+        println(applyMethod.paramSymss.head)
 
-        val fieldNamesWithImplicits: Seq[(String, Expr[AvroSerialisable[_]])] = Seq.empty
+        val fieldNamesWithImplicits: Seq[(String, Expr[AvroSerialisable[Any]])] = Seq.empty
 
         val fieldSchemas: Seq[Expr[(String, AvroSchema)]] =
-            fieldNamesWithImplicits.map { case (fieldName: String, implicitSerialisable: AvroSerialisable[_]) =>
-              '{fieldName -> (${implicitSerialisable}.schema)}
+            fieldNamesWithImplicits.map { case (fieldName: String, implicitSerialisable: Expr[AvroSerialisable[Any]]) =>
+              '{
+                  "Foo" -> (${implicitSerialisable}.schema : AvroSchema)
+                  //"Foo" -> (${implicitSerialisable})
+                  //${Expr(fieldName)}//  -> ${implicitSerialisable}.schema
+              }
             }
+
+//        val listOfValues: Expr[List[T]] = '{
+//            ${
+//                Ref(typSymbol.companionModule).asExprOf[ThriftEnumObject[T]]
+//            }.list
+//        }
 
         '{
             new com.gu.marley.AvroSerialisable[T] {
@@ -75,7 +85,11 @@ object AvroSerialisableMacro {
                     val foo: Seq[(String, Any)] = ${ Expr.ofSeq(
                         fieldNamesWithImplicits.map { case (fieldName, implicitSerialisable) =>
                             //'{${fieldName} -> ${implicitSerialisable}.writableValue(t.$fieldName)}
-                            '{ $fieldName -> ${ implicitSerialisable }.writableValue(${ Select.unique(('t).asTerm, fieldName) }) }
+                            '{
+                                ${Expr(fieldName)} -> ${ implicitSerialisable }.writableValue(${
+                                    Select.unique(('t).asTerm, fieldName).asExpr
+                                })
+                            }
                         }
                     ) }
 
@@ -87,6 +101,7 @@ object AvroSerialisableMacro {
                 def read(x: Any) = ???
             }
         }
+        ???
     }
 
     def unionMacro = ???

@@ -18,6 +18,7 @@ lazy val core = project.settings(
   name := "marley",
   Compile / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, _)) => Some("-Ymacro-annotations")
+    // case Some((3, _)) => Some("-explain")
     case _ => None
   }),
   scalaVersion := "3.2.2",

@@ -27,7 +27,7 @@ lazy val core = project.settings(
     "org.parboiled" %% "parboiled" % "2.4.1",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.15" % Test,
-    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.15.0" % Test
+    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test
   ),
   Test/testOptions += Tests.Argument(
     TestFrameworks.ScalaTest,

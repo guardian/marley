@@ -3,7 +3,7 @@ import com.twitter.scrooge.{ThriftEnum, ThriftStruct, ThriftUnion}
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Type
 
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
@@ -92,7 +92,7 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
         }
     }
 
-  implicit def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
+  implicit def `enum`[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
 
   implicit def union[T <: ThriftUnion]: AvroSerialisable[T] = macro AvroSerialisableMacro.unionMacro[T]
 

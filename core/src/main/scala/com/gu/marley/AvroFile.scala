@@ -1,11 +1,12 @@
 package com.gu.marley
 
 import java.io.File
-
 import com.twitter.scrooge.ThriftStruct
 import org.apache.avro.file.{CodecFactory, DataFileReader, DataFileWriter}
 import org.apache.avro.generic.GenericData.Record
 import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
+
+import scala.jdk.CollectionConverters.IterableHasAsScala
 
 case class AvroFile[T <: ThriftStruct : AvroSerialisable](file: File) {
   val serialisable = implicitly[AvroSerialisable[T]]
@@ -40,10 +41,8 @@ object AvroFile {
     val datumReader = new GenericDatumReader[GenericRecord]()
     val dataFileReader = new DataFileReader[GenericRecord](file, datumReader)
 
-    import collection.JavaConverters._
-
     try {
-      iterableAsScalaIterable(dataFileReader).map(AvroSerialisable.read[T])
+      dataFileReader.asScala.map(AvroSerialisable.read[T])
     } finally {
       dataFileReader.close()
     }

@@ -4,7 +4,7 @@ import com.twitter.scrooge.ThriftEnum
 import org.apache.avro.Schema.Type
 import org.apache.avro.{SchemaBuilder, Schema}
 
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait AvroSchema {
   def apply(): Schema

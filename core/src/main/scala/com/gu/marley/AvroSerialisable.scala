@@ -3,7 +3,7 @@ import com.twitter.scrooge.{ThriftEnum, ThriftStruct, ThriftUnion}
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Type
 
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
@@ -19,10 +19,10 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
   def read[T](x: Any)(implicit lw: AvroSerialisable[T]): T = lw.read(x)
   def schema[T](implicit lw: AvroSerialisable[T]): AvroSchema = lw.schema
 
-  implicit val booleanSerialisable = SimpleSerialisable[Boolean](Schema.Type.BOOLEAN)
-  implicit val intSerialisable = SimpleSerialisable[Int](Schema.Type.INT)
-  implicit val longSerialisable = SimpleSerialisable[Long](Schema.Type.LONG)
-  implicit val doubleSerialisable = SimpleSerialisable[Double](Schema.Type.DOUBLE)
+  implicit val booleanSerialisable: SimpleSerialisable[Boolean] = SimpleSerialisable[Boolean](Schema.Type.BOOLEAN)
+  implicit val intSerialisable: SimpleSerialisable[Int] = SimpleSerialisable[Int](Schema.Type.INT)
+  implicit val longSerialisable: SimpleSerialisable[Long] = SimpleSerialisable[Long](Schema.Type.LONG)
+  implicit val doubleSerialisable: SimpleSerialisable[Double] = SimpleSerialisable[Double](Schema.Type.DOUBLE)
 
   case class SimpleSerialisable[T](typ: Type) extends AvroSerialisable[T] {
     override val schema = SimpleAvroSchema(typ)
@@ -92,7 +92,7 @@ object AvroSerialisable extends LowPriorityImplicitSerialisable {
         }
     }
 
-  implicit def enum[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
+  implicit def `enum`[T <: ThriftEnum]: AvroSerialisable[T] = macro AvroSerialisableMacro.enumMacro[T]
 
   implicit def union[T <: ThriftUnion]: AvroSerialisable[T] = macro AvroSerialisableMacro.unionMacro[T]
 

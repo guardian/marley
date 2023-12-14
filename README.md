@@ -1,4 +1,4 @@
-Marley [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12)
+Marley [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12) [![Release](https://github.com/guardian/marley/actions/workflows/release.yml/badge.svg)](https://github.com/guardian/marley/actions/workflows/release.yml)
 ======
 
 Marley is a library for serialising [Scrooge](https://twitter.github.io/scrooge/) generated classes representing 
@@ -30,7 +30,8 @@ val readStructs: Iterable[ExampleStruct] = AvroFile.read[ExampleStruct](file)
 Is this usable in production?
 -----------------------------
 
-Marley has been extracted from a project where it's been running successfully for a number of months.
+Marley has been used successfully in the Guardian's realtime analytics system
+Ophan for many years.
 
 Marley is macro based and doesn't perform any runtime reflection. I haven't 
 done any micro-benchmarking, but it's currently serialising more than 5000 

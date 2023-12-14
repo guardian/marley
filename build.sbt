@@ -24,7 +24,7 @@ lazy val core = project.settings(
   libraryDependencies ++= versionDependent(scalaBinaryVersion.value, handlesAnnotations=false,
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)).toSeq ++ Seq(
     "org.apache.avro" % "avro" % "1.11.1",
-    "org.xerial.snappy" % "snappy-java" % "1.1.10.3",
+    "org.xerial.snappy" % "snappy-java" % "1.1.10.5",
     "org.parboiled" %% "parboiled" % "2.5.0",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,

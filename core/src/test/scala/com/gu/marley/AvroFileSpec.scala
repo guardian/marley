@@ -79,4 +79,26 @@ class AvroFileSpec extends AnyFlatSpec with Checkers with Matchers {
     }
   }
 
+  it should "handle a indirect recursive structure" in {
+    lazy implicit val arbOuterStruct: Arbitrary[OuterStruct] = Arbitrary(for {
+      string <- arbitrary[String]
+      innerStructOpt <- arbitrary[Option[InnerStruct]]
+    } yield OuterStruct(string, innerStructOpt))
+
+    lazy implicit val arbInnerStruct: Arbitrary[InnerStruct] = Arbitrary(for {
+      outerStruct <- arbitrary[OuterStruct]
+    } yield InnerStruct(outerStruct))
+
+    lazy implicit val outerStructSer: AvroSerialisable[OuterStruct] = AvroSerialisable.struct[OuterStruct]
+    lazy implicit val innerStructSer: AvroSerialisable[InnerStruct] = AvroSerialisable.struct[InnerStruct]
+
+    check { (struct: OuterStruct) =>
+      val file = File.createTempFile("AvroTest-read-write", ".avro")
+      file.deleteOnExit()
+
+      AvroFile.write(Seq(struct))(file)
+
+      AvroFile.read[OuterStruct](file).head == struct
+    }
+  }
 }

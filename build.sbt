@@ -1,14 +1,14 @@
 import sbtversionpolicy.withsbtrelease.ReleaseVersion.fromAggregatedAssessedCompatibilityWithLatestRelease
 
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.13"
 
 val commonSettings = Seq(
   organization := "com.gu",
   licenses := Seq("Apache V2" -> url("https://www.apache.org/licenses/LICENSE-2.0.html")),
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "com.twitter" %% "scrooge-core" % "22.12.0",
-    "org.apache.thrift" % "libthrift" % "0.17.0"
+    "com.twitter" %% "scrooge-core" % "23.11.0",
+    "org.apache.thrift" % "libthrift" % "0.19.0"
   )
 )
 
@@ -16,12 +16,12 @@ lazy val core = project.settings(
   name := "marley",
   Compile / scalacOptions ++= Seq("-release:11", "-Ymacro-annotations"),
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % "1.11.1",
+    "org.apache.avro" % "avro" % "1.11.3",
     "org.xerial.snappy" % "snappy-java" % "1.1.10.5",
-    "org.parboiled" %% "parboiled" % "2.5.0",
+    "org.parboiled" %% "parboiled" % "2.5.1",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
-    "org.scalatest" %% "scalatest" % "3.2.16" % Test,
-    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test
+    "org.scalatest" %% "scalatest" % "3.2.18" % Test,
+    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.18.0" % Test
   ),
   Test/testOptions += Tests.Argument(
     TestFrameworks.ScalaTest,

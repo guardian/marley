@@ -16,12 +16,13 @@ lazy val core = project.settings(
   name := "marley",
   Compile / scalacOptions ++= Seq("-release:11", "-Ymacro-annotations"),
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % "1.11.3",
+    "org.apache.avro" % "avro" % "1.11.3" exclude("org.apache.commons", "commons-compress"),
     "org.xerial.snappy" % "snappy-java" % "1.1.10.5",
     "org.parboiled" %% "parboiled" % "2.5.0",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,
-    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test
+    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,
+    "org.apache.commons" % "commons-compress" % "1.26.2"
   ),
   Test/testOptions += Tests.Argument(
     TestFrameworks.ScalaTest,

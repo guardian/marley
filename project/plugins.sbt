@@ -2,7 +2,7 @@
 // Instead, force a slightly more recent version
 libraryDependencies += "org.apache.thrift" % "libthrift" % "0.17.0"
 
-addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "22.12.0")
+addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "24.2.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 addSbtPlugin("ch.epfl.scala" % "sbt-version-policy" % "3.2.1")

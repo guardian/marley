@@ -24,10 +24,8 @@ lazy val core = project.settings(
     "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,
     "org.apache.commons" % "commons-compress" % "1.26.2"
   ),
-  Test/testOptions += Tests.Argument(
-    TestFrameworks.ScalaTest,
-    "-u", s"test-results/scala-${scalaVersion.value}"
-  )
+  Test / testOptions +=
+    Tests.Argument(TestFrameworks.ScalaTest, "-u", s"test-results/scala-${scalaVersion.value}", "-o")
 ).settings(commonSettings).dependsOn(thriftExample % "test->test")
 
 lazy val thriftExample = project.settings(commonSettings).settings(

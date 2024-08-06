@@ -18,7 +18,7 @@ lazy val core = project.settings(
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % "1.12.0",
     "org.xerial.snappy" % "snappy-java" % "1.1.10.5",
-    "org.parboiled" %% "parboiled" % "2.5.0",
+    "org.parboiled" %% "parboiled" % "2.5.1",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,
     "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,

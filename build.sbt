@@ -22,7 +22,8 @@ lazy val core = project.settings(
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,
     "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,
-    "org.apache.commons" % "commons-compress" % "1.26.2"
+    "org.apache.commons" % "commons-compress" % "1.26.2",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2"
   ),
   Test / testOptions +=
     Tests.Argument(TestFrameworks.ScalaTest, "-u", s"test-results/scala-${scalaVersion.value}", "-o")

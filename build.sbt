@@ -16,7 +16,7 @@ lazy val core = project.settings(
   name := "marley",
   Compile / scalacOptions ++= Seq("-release:11", "-Ymacro-annotations"),
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % "1.11.3",
+    "org.apache.avro" % "avro" % "1.11.4",
     "org.xerial.snappy" % "snappy-java" % "1.1.10.5",
     "org.parboiled" %% "parboiled" % "2.5.0",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",

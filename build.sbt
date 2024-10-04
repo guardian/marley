@@ -21,7 +21,7 @@ lazy val core = project.settings(
     "org.parboiled" %% "parboiled" % "2.5.1",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,
+    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.18.0" % Test,
     "org.apache.commons" % "commons-compress" % "1.27.1",
     "com.fasterxml.jackson.core" % "jackson-core" % "2.15.4"
   ),

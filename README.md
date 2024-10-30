@@ -1,4 +1,4 @@
-Marley [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.gu/marley_2.12) [![Release](https://github.com/guardian/marley/actions/workflows/release.yml/badge.svg)](https://github.com/guardian/marley/actions/workflows/release.yml)
+Marley [![marley Scala version support](https://index.scala-lang.org/guardian/marley/marley/latest-by-scala-version.svg?platform=jvm)](https://index.scala-lang.org/guardian/marley/marley) [![Release](https://github.com/guardian/marley/actions/workflows/release.yml/badge.svg)](https://github.com/guardian/marley/actions/workflows/release.yml)
 ======
 
 Marley is a library for serialising [Scrooge](https://twitter.github.io/scrooge/) generated classes representing 

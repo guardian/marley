@@ -40,3 +40,11 @@ struct ExampleStruct {
   13: optional map<string, i32> stringIntMap;
   14: required ExampleUnion exampleUnion;
 }
+
+struct OuterStruct {
+    1: required string foo
+    2: optional InnerStruct inner
+}
+struct InnerStruct {
+    1: required OuterStruct outer
+}

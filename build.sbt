@@ -12,6 +12,8 @@ val commonSettings = Seq(
   )
 )
 
+val jacksonVersion = "2.22.1"
+
 lazy val core = project.settings(
   name := "marley",
   Compile / scalacOptions ++= Seq("-release:11", "-Ymacro-annotations"),
@@ -23,7 +25,8 @@ lazy val core = project.settings(
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,
     "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,
     "org.apache.commons" % "commons-compress" % "1.26.2",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.18.6"
+    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
   ),
   Test / testOptions +=
     Tests.Argument(TestFrameworks.ScalaTest, "-u", s"test-results/scala-${scalaVersion.value}", "-o")

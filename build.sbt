@@ -8,7 +8,7 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     "com.twitter" %% "scrooge-core" % "22.12.0",
-    "org.apache.thrift" % "libthrift" % "0.23.0"
+    "org.apache.thrift" % "libthrift" % "0.24.0"
   )
 )
 

@@ -12,7 +12,7 @@ val commonSettings = Seq(
   )
 )
 
-val jacksonVersion = "2.22.1"
+val jacksonVersion = "2.22.2"
 
 lazy val core = project.settings(
   name := "marley",

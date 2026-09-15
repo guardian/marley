@@ -1,5 +1,5 @@
 // Scrooge relies on libthrift at build time for thrift generation.
-libraryDependencies += "org.apache.thrift" % "libthrift" % "0.23.0"
+libraryDependencies += "org.apache.thrift" % "libthrift" % "0.24.0"
 
 addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "22.12.0")
 

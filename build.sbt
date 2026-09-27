@@ -23,7 +23,7 @@ lazy val core = project.settings(
     "org.parboiled" %% "parboiled" % "2.5.0",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,
-    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,
+    "org.scalatestplus" %% "scalacheck-1-17" % "3.2.18.0" % Test,
     "org.apache.commons" % "commons-compress" % "1.26.2",
     // Force patched httpcore5 versions: CVE-2026-54399, CVE-2026-54428
     "org.apache.httpcomponents.core5" % "httpcore5" % "5.4.3",

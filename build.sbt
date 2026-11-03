@@ -1,6 +1,6 @@
 import sbtversionpolicy.withsbtrelease.ReleaseVersion.fromAggregatedAssessedCompatibilityWithLatestRelease
 
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.18"
 
 val commonSettings = Seq(
   organization := "com.gu",
@@ -18,9 +18,9 @@ lazy val core = project.settings(
   name := "marley",
   Compile / scalacOptions ++= Seq("-release:11", "-Ymacro-annotations"),
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % "1.11.4",
+    "org.apache.avro" % "avro" % "1.11.5",
     "org.xerial.snappy" % "snappy-java" % "1.1.10.9",
-    "org.parboiled" %% "parboiled" % "2.5.0",
+    "org.parboiled" %% "parboiled" % "2.5.1",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,
     "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test,
